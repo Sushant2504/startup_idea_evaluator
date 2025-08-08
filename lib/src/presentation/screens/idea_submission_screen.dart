@@ -46,80 +46,44 @@ class _IdeaSubmissionScreenState extends State<IdeaSubmissionScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: AppGradients.hushhSoft,
-                borderRadius: BorderRadius.circular(16),
-              ),
+            backgroundColor: AppGradients.lightBackground,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('The Startup Idea Evaluator 🚀', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Text('Submit your idea, get a fun AI rating, and compete on the leaderboard!'),
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Animated Welcome Section
+                  _AnimatedWelcomeSection(),
+                  const SizedBox(height: 24),
+                  
+                  // Animated Form Card
+                  _AnimatedFormCard(
+                    formKey: _formKey,
+                    nameController: _nameController,
+                    taglineController: _taglineController,
+                    descController: _descController,
+                    onSubmit: () async {
+                      if (!_formKey.currentState!.validate()) return;
+                      await context.read<IdeaCubit>().submitIdea(
+                            name: _nameController.text.trim(),
+                            tagline: _taglineController.text.trim(),
+                            description: _descController.text.trim(),
+                          );
+                      if (!mounted) return;
+                      showToast('Idea submitted! 🎉');
+                      Navigator.pushReplacementNamed(context, '/ideas');
+                    },
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Startup Name'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _taglineController,
-                        decoration: const InputDecoration(labelText: 'Tagline'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _descController,
-                        maxLines: 5,
-                        decoration: const InputDecoration(labelText: 'Description'),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.send),
-                          label: const Text('Submit & Get AI Rating'),
-                          onPressed: () async {
-                            if (!_formKey.currentState!.validate()) return;
-                            await context.read<IdeaCubit>().submitIdea(
-                                  name: _nameController.text.trim(),
-                                  tagline: _taglineController.text.trim(),
-                                  description: _descController.text.trim(),
-                                );
-                            if (!mounted) return;
-                            showToast('Idea submitted! 🎉');
-                            Navigator.pushReplacementNamed(context, '/ideas');
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: _BottomNav(current: 0),
     );
@@ -153,6 +117,503 @@ class _BottomNav extends StatelessWidget {
         NavigationDestination(icon: Icon(Icons.list), label: 'Ideas'),
         NavigationDestination(icon: Icon(Icons.emoji_events), label: 'Top'),
       ],
+    );
+  }
+}
+
+class _AnimatedWelcomeSection extends StatefulWidget {
+  @override
+  State<_AnimatedWelcomeSection> createState() => _AnimatedWelcomeSectionState();
+}
+
+class _AnimatedWelcomeSectionState extends State<_AnimatedWelcomeSection>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: AppGradients.primary,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppGradients.primaryOrange.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.rocket_launch,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Startup Idea Evaluator',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Submit your idea and get AI-powered feedback!',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _AnimatedFeatureChip(
+                      icon: Icons.psychology,
+                      label: 'AI Rating',
+                      delay: 200,
+                    ),
+                    const SizedBox(width: 8),
+                    _AnimatedFeatureChip(
+                      icon: Icons.thumb_up,
+                      label: 'Vote',
+                      delay: 400,
+                    ),
+                    const SizedBox(width: 8),
+                    _AnimatedFeatureChip(
+                      icon: Icons.leaderboard,
+                      label: 'Leaderboard',
+                      delay: 600,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedFeatureChip extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final int delay;
+
+  const _AnimatedFeatureChip({
+    required this.icon,
+    required this.label,
+    required this.delay,
+  });
+
+  @override
+  State<_AnimatedFeatureChip> createState() => _AnimatedFeatureChipState();
+}
+
+class _AnimatedFeatureChipState extends State<_AnimatedFeatureChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              widget.icon,
+              color: Colors.white,
+              size: 16,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              widget.label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedFormCard extends StatefulWidget {
+  final GlobalKey<FormState> formKey;
+  final TextEditingController nameController;
+  final TextEditingController taglineController;
+  final TextEditingController descController;
+  final VoidCallback onSubmit;
+
+  const _AnimatedFormCard({
+    required this.formKey,
+    required this.nameController,
+    required this.taglineController,
+    required this.descController,
+    required this.onSubmit,
+  });
+
+  @override
+  State<_AnimatedFormCard> createState() => _AnimatedFormCardState();
+}
+
+class _AnimatedFormCardState extends State<_AnimatedFormCard>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _cardScaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _cardScaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: ScaleTransition(
+          scale: _cardScaleAnimation,
+          child: Card(
+            elevation: 8,
+            shadowColor: AppGradients.primaryOrange.withOpacity(0.2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppGradients.cardBackground,
+                    AppGradients.lightBackground,
+                  ],
+                ),
+              ),
+              child: Form(
+                key: widget.formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _AnimatedFormField(
+                      controller: widget.nameController,
+                      label: 'Startup Name',
+                      icon: Icons.business,
+                      delay: 100,
+                    ),
+                    const SizedBox(height: 16),
+                    _AnimatedFormField(
+                      controller: widget.taglineController,
+                      label: 'Tagline',
+                      icon: Icons.tag,
+                      delay: 200,
+                    ),
+                    const SizedBox(height: 16),
+                    _AnimatedFormField(
+                      controller: widget.descController,
+                      label: 'Description',
+                      icon: Icons.description,
+                      maxLines: 4,
+                      delay: 300,
+                    ),
+                    const SizedBox(height: 24),
+                    _AnimatedSubmitButton(
+                      onSubmit: widget.onSubmit,
+                      delay: 400,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedFormField extends StatefulWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final int delay;
+  final int maxLines;
+
+  const _AnimatedFormField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    required this.delay,
+    this.maxLines = 1,
+  });
+
+  @override
+  State<_AnimatedFormField> createState() => _AnimatedFormFieldState();
+}
+
+class _AnimatedFormFieldState extends State<_AnimatedFormField>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-0.3, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: TextFormField(
+          controller: widget.controller,
+          maxLines: widget.maxLines,
+          decoration: InputDecoration(
+            labelText: widget.label,
+            prefixIcon: Icon(widget.icon, color: AppGradients.primaryOrange),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppGradients.primaryOrange.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppGradients.primaryOrange.withOpacity(0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppGradients.primaryOrange, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedSubmitButton extends StatefulWidget {
+  final VoidCallback onSubmit;
+  final int delay;
+
+  const _AnimatedSubmitButton({
+    required this.onSubmit,
+    required this.delay,
+  });
+
+  @override
+  State<_AnimatedSubmitButton> createState() => _AnimatedSubmitButtonState();
+}
+
+class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppGradients.primaryOrange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+              shadowColor: AppGradients.primaryOrange.withOpacity(0.3),
+            ),
+            icon: const Icon(Icons.rocket_launch, size: 24),
+            label: const Text(
+              'Submit & Get AI Rating',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            onPressed: widget.onSubmit,
+          ),
+        ),
+      ),
     );
   }
 }

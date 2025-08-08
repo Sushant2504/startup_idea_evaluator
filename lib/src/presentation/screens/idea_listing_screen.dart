@@ -51,7 +51,10 @@ class _IdeaListingScreenState extends State<IdeaListingScreen> {
             padding: const EdgeInsets.all(12),
             itemCount: state.ideas.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (_, i) => _IdeaCard(idea: state.ideas[i]),
+            itemBuilder: (_, i) => _AnimatedSlideIn(
+              delay: i * 60,
+              child: _IdeaCard(idea: state.ideas[i]),
+            ),
           );
         },
       ),
@@ -181,6 +184,46 @@ class _BottomNav extends StatelessWidget {
         NavigationDestination(icon: Icon(Icons.list), label: 'Ideas'),
         NavigationDestination(icon: Icon(Icons.emoji_events), label: 'Top'),
       ],
+    );
+  }
+}
+
+class _AnimatedSlideIn extends StatefulWidget {
+  final Widget child;
+  final int delay; // ms
+  const _AnimatedSlideIn({required this.child, this.delay = 0});
+
+  @override
+  State<_AnimatedSlideIn> createState() => _AnimatedSlideInState();
+}
+
+class _AnimatedSlideInState extends State<_AnimatedSlideIn> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _offset;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    _offset = Tween(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    Future.delayed(Duration(milliseconds: widget.delay), _controller.forward);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _offset, child: widget.child),
     );
   }
 }

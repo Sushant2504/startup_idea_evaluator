@@ -40,7 +40,7 @@ class StartupIdeaApp extends StatelessWidget {
 ThemeData _buildTheme(Brightness brightness) {
   final base = ThemeData(
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFFFF3CAC), // pink seed for brand vibe
+      seedColor: const Color(0xFFFF6B35), // orange seed for modern vibe
       brightness: brightness,
     ),
     useMaterial3: true,

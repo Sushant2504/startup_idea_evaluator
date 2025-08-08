@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 
 class AppGradients {
-  // Hushh-like pink -> violet brand gradient
-  static const Color pink = Color(0xFFFF3CAC);
-  static const Color violet = Color(0xFF784BA0);
+  // Modern financial app colors
+  static const Color primaryOrange = Color(0xFFFF6B35);
+  static const Color primaryTeal = Color(0xFF20B2AA);
+  static const Color primaryBlue = Color(0xFF4A90E2);
+  static const Color primaryGreen = Color(0xFF7ED321);
+  static const Color primaryViolet = Color(0xFF9B59B6);
+  static const Color lightBackground = Color(0xFFF8F9FA);
+  static const Color cardBackground = Color(0xFFFFFFFF);
 
-  static const LinearGradient hushh = LinearGradient(
-    colors: [pink, violet],
+  static const LinearGradient primary = LinearGradient(
+    colors: [primaryOrange, primaryTeal],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Softer (translucent) variant for backgrounds
-  static LinearGradient hushhSoft = LinearGradient(
-    colors: [pink.withAlpha(28), violet.withAlpha(28)], // ~11% opacity
+  static const LinearGradient secondary = LinearGradient(
+    colors: [primaryBlue, primaryViolet],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient success = LinearGradient(
+    colors: [primaryGreen, primaryTeal],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
