@@ -37,8 +37,14 @@ class _IdeaListingScreenState extends State<IdeaListingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lightbulb_outline,
-                      size: 64, color: Theme.of(context).colorScheme.primary.withOpacity(0.6)),
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 64,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.6),
+                  ),
                   const SizedBox(height: 12),
                   const Text('No ideas yet', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
                   const SizedBox(height: 4),

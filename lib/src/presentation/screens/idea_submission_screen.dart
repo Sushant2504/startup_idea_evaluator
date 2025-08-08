@@ -186,8 +186,9 @@ class _AnimatedWelcomeSectionState extends State<_AnimatedWelcomeSection>
               boxShadow: [
                 BoxShadow(
                   color: (Theme.of(context).brightness == Brightness.dark 
-                      ? AppGradients.darkOrange 
-                      : AppGradients.primaryOrange).withOpacity(0.3),
+                          ? AppGradients.darkOrange 
+                          : AppGradients.primaryOrange)
+                      .withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -411,8 +412,9 @@ class _AnimatedFormCardState extends State<_AnimatedFormCard>
           child: Card(
             elevation: 8,
             shadowColor: (Theme.of(context).brightness == Brightness.dark 
-                ? AppGradients.darkOrange 
-                : AppGradients.primaryOrange).withOpacity(0.2),
+                    ? AppGradients.darkOrange 
+                    : AppGradients.primaryOrange)
+                .withValues(alpha: 0.2),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Container(
               padding: const EdgeInsets.all(24),
@@ -593,7 +595,7 @@ class _AnimatedSubmitButton extends StatefulWidget {
 }
 
 class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -647,8 +649,9 @@ class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
                   boxShadow: [
                     BoxShadow(
                       color: (Theme.of(context).brightness == Brightness.dark 
-                          ? AppGradients.darkOrange 
-                          : AppGradients.primaryOrange).withOpacity(0.3),
+                              ? AppGradients.darkOrange 
+                              : AppGradients.primaryOrange)
+                          .withValues(alpha: 0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
