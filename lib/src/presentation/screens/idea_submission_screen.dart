@@ -35,8 +35,12 @@ class _IdeaSubmissionScreenState extends State<IdeaSubmissionScreen> {
         title: const Text('Submit Idea'),
         actions: [
           IconButton(
-            tooltip: 'Toggle Dark Mode',
-            icon: const Icon(Icons.dark_mode),
+            tooltip: 'Toggle Theme',
+            icon: Icon(
+              themeCubit.state == ThemeMode.dark 
+                  ? Icons.light_mode 
+                  : Icons.dark_mode,
+            ),
             onPressed: () => themeCubit.toggle(),
           ),
           IconButton(
@@ -46,7 +50,7 @@ class _IdeaSubmissionScreenState extends State<IdeaSubmissionScreen> {
           ),
         ],
       ),
-            backgroundColor: AppGradients.lightBackground,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -175,11 +179,15 @@ class _AnimatedWelcomeSectionState extends State<_AnimatedWelcomeSection>
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: AppGradients.primary,
+              gradient: Theme.of(context).brightness == Brightness.dark 
+                  ? AppGradients.darkPrimary 
+                  : AppGradients.primary,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppGradients.primaryOrange.withOpacity(0.3),
+                  color: (Theme.of(context).brightness == Brightness.dark 
+                      ? AppGradients.darkOrange 
+                      : AppGradients.primaryOrange).withOpacity(0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -402,7 +410,9 @@ class _AnimatedFormCardState extends State<_AnimatedFormCard>
           scale: _cardScaleAnimation,
           child: Card(
             elevation: 8,
-            shadowColor: AppGradients.primaryOrange.withOpacity(0.2),
+            shadowColor: (Theme.of(context).brightness == Brightness.dark 
+                ? AppGradients.darkOrange 
+                : AppGradients.primaryOrange).withOpacity(0.2),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Container(
               padding: const EdgeInsets.all(24),
@@ -411,10 +421,15 @@ class _AnimatedFormCardState extends State<_AnimatedFormCard>
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    AppGradients.cardBackground,
-                    AppGradients.lightBackground,
-                  ],
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? [
+                          AppGradients.darkCardBackground,
+                          AppGradients.darkSurface,
+                        ]
+                      : [
+                          AppGradients.cardBackground,
+                          AppGradients.lightBackground,
+                        ],
                 ),
               ),
               child: Form(
@@ -521,21 +536,41 @@ class _AnimatedFormFieldState extends State<_AnimatedFormField>
           maxLines: widget.maxLines,
           decoration: InputDecoration(
             labelText: widget.label,
-            prefixIcon: Icon(widget.icon, color: AppGradients.primaryOrange),
+            prefixIcon: Icon(
+              widget.icon, 
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? AppGradients.darkOrange 
+                  : AppGradients.primaryOrange
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppGradients.primaryOrange.withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: (Theme.of(context).brightness == Brightness.dark 
+                    ? AppGradients.darkOrange 
+                    : AppGradients.primaryOrange).withOpacity(0.3)
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppGradients.primaryOrange.withOpacity(0.3)),
+              borderSide: BorderSide(
+                color: (Theme.of(context).brightness == Brightness.dark 
+                    ? AppGradients.darkOrange 
+                    : AppGradients.primaryOrange).withOpacity(0.3)
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppGradients.primaryOrange, width: 2),
+              borderSide: BorderSide(
+                color: Theme.of(context).brightness == Brightness.dark 
+                    ? AppGradients.darkOrange 
+                    : AppGradients.primaryOrange, 
+                width: 2
+              ),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).brightness == Brightness.dark 
+                ? AppGradients.darkSurface 
+                : Colors.white,
           ),
           validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
         ),
@@ -562,6 +597,7 @@ class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  late AnimationController _shimmerController;
 
   @override
   void initState() {
@@ -577,6 +613,10 @@ class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
+    _shimmerController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
+          ..repeat();
+
     Future.delayed(Duration(milliseconds: widget.delay), () {
       if (mounted) _controller.forward();
     });
@@ -585,6 +625,7 @@ class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
   @override
   void dispose() {
     _controller.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -594,24 +635,69 @@ class _AnimatedSubmitButtonState extends State<_AnimatedSubmitButton>
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppGradients.primaryOrange,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
-              shadowColor: AppGradients.primaryOrange.withOpacity(0.3),
-            ),
-            icon: const Icon(Icons.rocket_launch, size: 24),
-            label: const Text(
-              'Submit & Get AI Rating',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            onPressed: widget.onSubmit,
-          ),
+        child: AnimatedBuilder(
+          animation: _shimmerController,
+          builder: (context, _) {
+            return SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (Theme.of(context).brightness == Brightness.dark 
+                          ? AppGradients.darkOrange 
+                          : AppGradients.primaryOrange).withOpacity(0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: Theme.of(context).brightness == Brightness.dark
+                        ? const [
+                            AppGradients.darkOrange,
+                            AppGradients.darkTeal,
+                            AppGradients.darkBlue,
+                          ]
+                        : const [
+                            AppGradients.primaryOrange,
+                            AppGradients.lightOrange,
+                            AppGradients.primaryTeal,
+                          ],
+                    transform:
+                        SlidingGradientTransform(_shimmerController.value),
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: widget.onSubmit,
+                    child: const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.rocket_launch, color: Colors.white, size: 22),
+                          SizedBox(width: 8),
+                          Text(
+                            'Submit & Get AI Rating',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

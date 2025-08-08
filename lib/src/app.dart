@@ -7,6 +7,7 @@ import 'presentation/bloc/theme_cubit.dart';
 import 'presentation/screens/idea_submission_screen.dart';
 import 'presentation/screens/idea_listing_screen.dart';
 import 'presentation/screens/leaderboard_screen.dart';
+import 'presentation/styles/gradients.dart';
 
 class StartupIdeaApp extends StatelessWidget {
   const StartupIdeaApp({super.key});
@@ -38,12 +39,15 @@ class StartupIdeaApp extends StatelessWidget {
 }
 
 ThemeData _buildTheme(Brightness brightness) {
+  final isDark = brightness == Brightness.dark;
+  
   final base = ThemeData(
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFFFF6B35), // orange seed for modern vibe
+      seedColor: isDark ? AppGradients.darkOrange : AppGradients.primaryOrange,
       brightness: brightness,
     ),
     useMaterial3: true,
+    scaffoldBackgroundColor: isDark ? AppGradients.darkBackground : AppGradients.lightBackground,
   );
 
   final textTheme = GoogleFonts.interTextTheme(base.textTheme);
@@ -52,7 +56,12 @@ ThemeData _buildTheme(Brightness brightness) {
     appBarTheme: base.appBarTheme.copyWith(
       centerTitle: true,
       elevation: 0,
-      titleTextStyle: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+      backgroundColor: isDark ? AppGradients.darkCardBackground : Colors.white,
+      foregroundColor: isDark ? AppGradients.darkText : Colors.black87,
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+        color: isDark ? AppGradients.darkText : Colors.black87,
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -62,14 +71,18 @@ ThemeData _buildTheme(Brightness brightness) {
     ),
     cardTheme: base.cardTheme.copyWith(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      elevation: isDark ? 4 : 2,
       margin: EdgeInsets.zero,
+      color: isDark ? AppGradients.darkCardBackground : AppGradients.cardBackground,
     ),
     chipTheme: base.chipTheme.copyWith(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     ),
-    dividerTheme: base.dividerTheme.copyWith(space: 24),
+    dividerTheme: base.dividerTheme.copyWith(
+      space: 24,
+      color: isDark ? AppGradients.darkTextSecondary : Colors.grey[400],
+    ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
   );
 }
