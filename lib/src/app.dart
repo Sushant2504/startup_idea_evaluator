@@ -50,7 +50,7 @@ ThemeData _buildTheme(Brightness brightness) {
     scaffoldBackgroundColor: isDark ? AppGradients.darkBackground : AppGradients.lightBackground,
   );
 
-  final textTheme = GoogleFonts.interTextTheme(base.textTheme);
+  final textTheme = GoogleFonts.playfairDisplayTextTheme(base.textTheme);
   return base.copyWith(
     textTheme: textTheme,
     appBarTheme: base.appBarTheme.copyWith(
